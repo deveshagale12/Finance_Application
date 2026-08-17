@@ -1,8 +1,10 @@
 package com.finance.customer.controller;
 
-import com.finance.customer.dto.CustomerRegistrationRequest;
-import com.finance.customer.dto.CustomerResponse;
-import com.finance.customer.service.CustomerService;
+import com.Finance.customer.dto.CustomerLoginRequest;
+import com.Finance.customer.dto.CustomerLoginResponse;
+import com.Finance.customer.dto.CustomerRegistrationRequest;
+import com.Finance.customer.dto.CustomerResponse;
+import com.Finance.customer.service.CustomerService;
 
 import jakarta.validation.Valid;
 
@@ -18,6 +20,7 @@ public class CustomerController {
 
     public CustomerController(
             CustomerService customerService) {
+
         this.customerService = customerService;
     }
 
@@ -33,5 +36,17 @@ public class CustomerController {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(response);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<CustomerLoginResponse> login(
+            @Valid
+            @RequestBody
+            CustomerLoginRequest request) {
+
+        CustomerLoginResponse response =
+                customerService.login(request);
+
+        return ResponseEntity.ok(response);
     }
 }

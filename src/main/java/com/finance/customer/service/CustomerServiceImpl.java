@@ -1,24 +1,33 @@
 package com.finance.customer.service;
+import com.Finance.customer.dto.*;
+import com.Finance.customer.entity.Customer;
+import com.Finance.customer.entity.CustomerStatus;
+import com.Finance.customer.exception.*;
+import com.Finance.customer.repository.CustomerRepository;
+import com.Finance.customer.security.JwtService;
 
-import com.finance.customer.dto.CustomerRegistrationRequest;
-import com.finance.customer.dto.CustomerResponse;
-import com.finance.customer.entity.Customer;
-import com.finance.customer.exception.CustomerAlreadyExistsException;
-import com.finance.customer.repository.CustomerRepository;
-
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
 @Service
-public class CustomerServiceImpl implements CustomerService {
+public class CustomerServiceImpl
+        implements CustomerService {
 
     private final CustomerRepository customerRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
 
     public CustomerServiceImpl(
-            CustomerRepository customerRepository) {
+            CustomerRepository customerRepository,
+            PasswordEncoder passwordEncoder,
+            JwtService jwtService) {
+
         this.customerRepository = customerRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.jwtService = jwtService;
     }
 
     @Override
@@ -26,21 +35,44 @@ public class CustomerServiceImpl implements CustomerService {
     public CustomerResponse registerCustomer(
             CustomerRegistrationRequest request) {
 
-        validateDuplicateCustomer(request);
+        String email = request.getEmail()
+                .trim()
+                .toLowerCase();
+
+        String phoneNumber = request.getPhoneNumber()
+                .trim();
+
+        if (customerRepository.existsByEmailIgnoreCase(email)) {
+
+            throw new CustomerAlreadyExistsException(
+                    "Customer already exists with email"
+            );
+        }
+
+        if (customerRepository.existsByPhoneNumber(phoneNumber)) {
+
+            throw new CustomerAlreadyExistsException(
+                    "Customer already exists with phone number"
+            );
+        }
 
         Customer customer = new Customer();
 
-        customer.setCustomerNumber(generateCustomerNumber());
+        customer.setCustomerNumber(
+                generateCustomerNumber()
+        );
 
         customer.setFirstName(
                 request.getFirstName().trim()
         );
 
-        customer.setMiddleName(
-                request.getMiddleName() != null
-                        ? request.getMiddleName().trim()
-                        : null
-        );
+        if (request.getMiddleName() != null
+                && !request.getMiddleName().isBlank()) {
+
+            customer.setMiddleName(
+                    request.getMiddleName().trim()
+            );
+        }
 
         customer.setLastName(
                 request.getLastName().trim()
@@ -54,23 +86,29 @@ public class CustomerServiceImpl implements CustomerService {
                 request.getGender()
         );
 
-        customer.setEmail(
-                request.getEmail().trim().toLowerCase()
-        );
+        customer.setEmail(email);
 
-        customer.setPhoneNumber(
-                request.getPhoneNumber().trim()
+        customer.setPhoneNumber(phoneNumber);
+
+        /*
+         * NEVER store the raw password.
+         */
+        customer.setPasswordHash(
+                passwordEncoder.encode(
+                        request.getPassword()
+                )
         );
 
         customer.setCustomerType(
                 request.getCustomerType()
         );
 
-        customer.setNationality(
-                request.getNationality() != null
-                        ? request.getNationality().trim()
-                        : null
-        );
+        if (request.getNationality() != null) {
+
+            customer.setNationality(
+                    request.getNationality().trim()
+            );
+        }
 
         Customer savedCustomer =
                 customerRepository.save(customer);
@@ -78,24 +116,88 @@ public class CustomerServiceImpl implements CustomerService {
         return mapToResponse(savedCustomer);
     }
 
-    private void validateDuplicateCustomer(
-            CustomerRegistrationRequest request) {
+    @Override
+    @Transactional(readOnly = true)
+    public CustomerLoginResponse login(
+            CustomerLoginRequest request) {
 
-        String email =
-                request.getEmail().trim().toLowerCase();
+        String email = request.getEmail()
+                .trim()
+                .toLowerCase();
 
-        if (customerRepository.existsByEmailIgnoreCase(email)) {
+        /*
+         * Don't reveal whether the email exists.
+         */
+        Customer customer =
+                customerRepository
+                        .findByEmailIgnoreCase(email)
+                        .orElseThrow(() ->
+                                new InvalidCredentialsException(
+                                        "Invalid email or password"
+                                )
+                        );
 
-            throw new CustomerAlreadyExistsException(
-                    "Customer already exists with email: " + email
+        validateCustomerAccount(customer);
+
+        boolean passwordMatches =
+                passwordEncoder.matches(
+                        request.getPassword(),
+                        customer.getPasswordHash()
+                );
+
+        if (!passwordMatches) {
+
+            throw new InvalidCredentialsException(
+                    "Invalid email or password"
             );
         }
 
-        if (customerRepository.existsByPhoneNumber(
-                request.getPhoneNumber().trim())) {
+        String token =
+                jwtService.generateToken(
+                        customer.getId(),
+                        customer.getEmail()
+                );
 
-            throw new CustomerAlreadyExistsException(
-                    "Customer already exists with phone number"
+        return new CustomerLoginResponse(
+                token,
+                "Bearer",
+                customer.getId(),
+                customer.getCustomerNumber(),
+                customer.getEmail()
+        );
+    }
+
+    private void validateCustomerAccount(
+            Customer customer) {
+
+        CustomerStatus status =
+                customer.getStatus();
+
+        if (status == CustomerStatus.BLOCKED) {
+
+            throw new CustomerAccountBlockedException(
+                    "Customer account is blocked"
+            );
+        }
+
+        if (status == CustomerStatus.SUSPENDED) {
+
+            throw new CustomerAccountSuspendedException(
+                    "Customer account is suspended"
+            );
+        }
+
+        if (status == CustomerStatus.CLOSED) {
+
+            throw new CustomerAccountClosedException(
+                    "Customer account is closed"
+            );
+        }
+
+        if (status != CustomerStatus.ACTIVE) {
+
+            throw new CustomerAccountNotActiveException(
+                    "Customer account is not active"
             );
         }
     }
@@ -105,6 +207,7 @@ public class CustomerServiceImpl implements CustomerService {
         return "CUST-" +
                 UUID.randomUUID()
                         .toString()
+                        .replace("-", "")
                         .substring(0, 12)
                         .toUpperCase();
     }
@@ -116,39 +219,51 @@ public class CustomerServiceImpl implements CustomerService {
                 new CustomerResponse();
 
         response.setId(customer.getId());
+
         response.setCustomerNumber(
                 customer.getCustomerNumber()
         );
+
         response.setFirstName(
                 customer.getFirstName()
         );
+
         response.setMiddleName(
                 customer.getMiddleName()
         );
+
         response.setLastName(
                 customer.getLastName()
         );
+
         response.setDateOfBirth(
                 customer.getDateOfBirth()
         );
+
         response.setGender(
                 customer.getGender().name()
         );
+
         response.setEmail(
                 customer.getEmail()
         );
+
         response.setPhoneNumber(
                 customer.getPhoneNumber()
         );
+
         response.setCustomerType(
                 customer.getCustomerType().name()
         );
+
         response.setNationality(
                 customer.getNationality()
         );
+
         response.setStatus(
                 customer.getStatus()
         );
+
         response.setCreatedAt(
                 customer.getCreatedAt()
         );

@@ -2,6 +2,7 @@ package com.finance.customer.exception;
 
 import jakarta.servlet.http.HttpServletRequest;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -15,43 +16,92 @@ import java.util.stream.Collectors;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(CustomerAlreadyExistsException.class)
-    public ResponseEntity<ErrorResponse> handleCustomerAlreadyExists(
+    public ResponseEntity<ErrorResponse>
+    handleCustomerAlreadyExists(
             CustomerAlreadyExistsException exception,
             HttpServletRequest request) {
 
-        ErrorResponse error = new ErrorResponse(
-                LocalDateTime.now(),
-                HttpStatus.CONFLICT.value(),
+        return buildErrorResponse(
+                HttpStatus.CONFLICT,
                 "Customer Already Exists",
                 exception.getMessage(),
                 request.getRequestURI()
         );
-
-        return ResponseEntity
-                .status(HttpStatus.CONFLICT)
-                .body(error);
     }
 
-    @ExceptionHandler(CustomerNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleCustomerNotFound(
-            CustomerNotFoundException exception,
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public ResponseEntity<ErrorResponse>
+    handleInvalidCredentials(
+            InvalidCredentialsException exception,
             HttpServletRequest request) {
 
-        ErrorResponse error = new ErrorResponse(
-                LocalDateTime.now(),
-                HttpStatus.NOT_FOUND.value(),
-                "Customer Not Found",
+        return buildErrorResponse(
+                HttpStatus.UNAUTHORIZED,
+                "Invalid Credentials",
                 exception.getMessage(),
                 request.getRequestURI()
         );
+    }
 
-        return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
-                .body(error);
+    @ExceptionHandler(CustomerAccountBlockedException.class)
+    public ResponseEntity<ErrorResponse>
+    handleAccountBlocked(
+            CustomerAccountBlockedException exception,
+            HttpServletRequest request) {
+
+        return buildErrorResponse(
+                HttpStatus.FORBIDDEN,
+                "Account Blocked",
+                exception.getMessage(),
+                request.getRequestURI()
+        );
+    }
+
+    @ExceptionHandler(CustomerAccountSuspendedException.class)
+    public ResponseEntity<ErrorResponse>
+    handleAccountSuspended(
+            CustomerAccountSuspendedException exception,
+            HttpServletRequest request) {
+
+        return buildErrorResponse(
+                HttpStatus.FORBIDDEN,
+                "Account Suspended",
+                exception.getMessage(),
+                request.getRequestURI()
+        );
+    }
+
+    @ExceptionHandler(CustomerAccountClosedException.class)
+    public ResponseEntity<ErrorResponse>
+    handleAccountClosed(
+            CustomerAccountClosedException exception,
+            HttpServletRequest request) {
+
+        return buildErrorResponse(
+                HttpStatus.FORBIDDEN,
+                "Account Closed",
+                exception.getMessage(),
+                request.getRequestURI()
+        );
+    }
+
+    @ExceptionHandler(CustomerAccountNotActiveException.class)
+    public ResponseEntity<ErrorResponse>
+    handleAccountNotActive(
+            CustomerAccountNotActiveException exception,
+            HttpServletRequest request) {
+
+        return buildErrorResponse(
+                HttpStatus.FORBIDDEN,
+                "Account Not Active",
+                exception.getMessage(),
+                request.getRequestURI()
+        );
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponse> handleValidationException(
+    public ResponseEntity<ErrorResponse>
+    handleValidationException(
             MethodArgumentNotValidException exception,
             HttpServletRequest request) {
 
@@ -65,34 +115,60 @@ public class GlobalExceptionHandler {
                                 + error.getDefaultMessage())
                 .collect(Collectors.joining(", "));
 
-        ErrorResponse error = new ErrorResponse(
-                LocalDateTime.now(),
-                HttpStatus.BAD_REQUEST.value(),
+        return buildErrorResponse(
+                HttpStatus.BAD_REQUEST,
                 "Validation Failed",
                 message,
                 request.getRequestURI()
         );
+    }
 
-        return ResponseEntity
-                .badRequest()
-                .body(error);
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ErrorResponse>
+    handleDataIntegrityViolation(
+            DataIntegrityViolationException exception,
+            HttpServletRequest request) {
+
+        return buildErrorResponse(
+                HttpStatus.CONFLICT,
+                "Database Constraint Violation",
+                "Customer with the provided unique information already exists",
+                request.getRequestURI()
+        );
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleGenericException(
+    public ResponseEntity<ErrorResponse>
+    handleGenericException(
             Exception exception,
             HttpServletRequest request) {
 
-        ErrorResponse error = new ErrorResponse(
-                LocalDateTime.now(),
-                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+        return buildErrorResponse(
+                HttpStatus.INTERNAL_SERVER_ERROR,
                 "Internal Server Error",
                 "An unexpected error occurred",
                 request.getRequestURI()
         );
+    }
+
+    private ResponseEntity<ErrorResponse>
+    buildErrorResponse(
+            HttpStatus status,
+            String error,
+            String message,
+            String path) {
+
+        ErrorResponse response =
+                new ErrorResponse(
+                        LocalDateTime.now(),
+                        status.value(),
+                        error,
+                        message,
+                        path
+                );
 
         return ResponseEntity
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(error);
+                .status(status)
+                .body(response);
     }
 }
