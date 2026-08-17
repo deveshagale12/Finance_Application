@@ -31,6 +31,14 @@ public class CustomerRegistrationRequest {
     @Size(max = 255)
     private String email;
 
+    @NotBlank(message = "Password is required")
+@Size(
+        min = 8,
+        max = 100,
+        message = "Password must contain between 8 and 100 characters"
+)
+private String password;
+
     @NotBlank(message = "Phone number is required")
     @Pattern(
         regexp = "^[6-9][0-9]{9}$",
@@ -93,7 +101,13 @@ public class CustomerRegistrationRequest {
     public void setEmail(String email) {
         this.email = email;
     }
+public String getPassword() {
+    return password;
+}
 
+public void setPassword(String password) {
+    this.password = password;
+}
     public String getPhoneNumber() {
         return phoneNumber;
     }
