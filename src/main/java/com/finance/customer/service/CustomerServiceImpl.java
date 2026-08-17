@@ -1,10 +1,10 @@
 package com.finance.customer.service;
-import com.Finance.customer.dto.*;
-import com.Finance.customer.entity.Customer;
-import com.Finance.customer.entity.CustomerStatus;
-import com.Finance.customer.exception.*;
-import com.Finance.customer.repository.CustomerRepository;
-import com.Finance.customer.security.JwtService;
+import com.finance.customer.dto.*;
+import com.finance.customer.entity.Customer;
+import com.finance.customer.entity.CustomerStatus;
+import com.finance.customer.exception.*;
+import com.finance.customer.repository.CustomerRepository;
+import com.finance.customer.security.JwtService;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;

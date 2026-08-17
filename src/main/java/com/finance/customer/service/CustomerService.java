@@ -1,9 +1,9 @@
 package com.finance.customer.service;
 
-import com.Finance.customer.dto.CustomerLoginRequest;
-import com.Finance.customer.dto.CustomerLoginResponse;
-import com.Finance.customer.dto.CustomerRegistrationRequest;
-import com.Finance.customer.dto.CustomerResponse;
+import com.finance.customer.dto.CustomerLoginRequest;
+import com.finance.customer.dto.CustomerLoginResponse;
+import com.finance.customer.dto.CustomerRegistrationRequest;
+import com.finance.customer.dto.CustomerResponse;
 
 public interface CustomerService {
 
