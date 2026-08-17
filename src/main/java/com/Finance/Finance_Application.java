@@ -1,0 +1,15 @@
+package com.Finance;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.EnableScheduling;
+
+@SpringBootApplication
+@EnableScheduling
+public class Finance_Application {
+
+	public static void main(String[] args) {
+		SpringApplication.run(Finance_Application.class, args);
+	}
+
+}
