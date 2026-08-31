@@ -1,4 +1,5 @@
 
+package com.finance.config;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -11,8 +12,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
-import com.example.smartCollege.exception.InvalidApiKeyException;
-import com.example.smartCollege.exception.MissingApiKeyException;
+import com.finance.exception.InvalidApiKeyException;
+import com.finance.exception.MissingApiKeyException;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
