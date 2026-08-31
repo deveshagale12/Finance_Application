@@ -23,10 +23,10 @@ import jakarta.servlet.http.HttpServletResponse;
 @Component
 public class ApiKeyAuthFilter extends OncePerRequestFilter {
 
-    @Value("${api.security.header-name}")
+    @Value("${api.security.header-name:X-API-KEY}")
     private String headerName;
 
-    @Value("${api.security.valid-keys}")
+    @Value("${api.security.valid-keys:demo-api-key-12345,partner-api-key-67890}")
     private String validKeysRaw;
 
     private final HandlerExceptionResolver resolver;
