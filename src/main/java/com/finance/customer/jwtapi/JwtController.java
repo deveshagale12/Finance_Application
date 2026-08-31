@@ -1,3 +1,4 @@
+package com.finance.jwtapi;
 
 
 import io.jsonwebtoken.Claims;
@@ -7,7 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 
-import com.example.smartCollege.jwtapi.JwtService;
+import com.finance.jwtapi.JwtService;
 
 
 @RestController

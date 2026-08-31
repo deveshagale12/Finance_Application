@@ -1,3 +1,4 @@
+package com.finance.exception;
 
 
 public class InvalidCredentialsException extends RuntimeException {

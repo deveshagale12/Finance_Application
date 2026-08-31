@@ -1,3 +1,4 @@
+package com.finance.jwtapi;
 
 
 import java.util.Base64;
@@ -11,7 +12,7 @@ import javax.crypto.SecretKey;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
-import com.example.smartCollege.exception.InvalidJwtException;
+import com.finance.exception.InvalidJwtException;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;

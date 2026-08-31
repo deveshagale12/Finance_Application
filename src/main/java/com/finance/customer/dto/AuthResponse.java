@@ -1,4 +1,5 @@
 
+package com.finance.dto;
 
 public class AuthResponse {
 

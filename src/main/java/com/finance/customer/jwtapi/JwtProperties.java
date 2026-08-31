@@ -1,4 +1,5 @@
 
+package com.finance.jwtapi;
 
 
 import org.springframework.boot.context.properties.ConfigurationProperties;

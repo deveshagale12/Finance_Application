@@ -1,14 +1,15 @@
 
+package com.finance.service;
 
-import com.example.smartCollege.dto.LoginRequest;
-import com.example.smartCollege.dto.RegisterRequest;
-import com.example.smartCollege.dto.AuthResponse;
-import com.example.smartCollege.entity.Role;
-import com.example.smartCollege.entity.User;
-import com.example.smartCollege.exception.InvalidCredentialsException;
-import com.example.smartCollege.exception.UserAlreadyExistsException;
-import com.example.smartCollege.jwtapi.JwtService;
-import com.example.smartCollege.repository.UserRepository;
+import com.finance.dto.LoginRequest;
+import com.finance.dto.RegisterRequest;
+import com.finance.dto.AuthResponse;
+import com.finance.entity.Role;
+import com.finance.entity.User;
+import com.finance.exception.InvalidCredentialsException;
+import com.finance.exception.UserAlreadyExistsException;
+import com.finance.jwtapi.JwtService;
+import com.finance.repository.UserRepository;
 
 import jakarta.transaction.Transactional;
 

@@ -1,4 +1,5 @@
 
+package com.finance.jwtapi;
 
 import jakarta.validation.constraints.NotBlank;
 public class TokenValidationRequest {

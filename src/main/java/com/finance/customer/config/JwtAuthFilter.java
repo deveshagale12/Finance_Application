@@ -1,3 +1,5 @@
+package com.finance.config;
+
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
@@ -17,7 +19,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
-import com.example.smartCollege.jwtapi.JwtService;
+import com.finance.jwtapi.JwtService;
 
 import java.io.IOException;
 

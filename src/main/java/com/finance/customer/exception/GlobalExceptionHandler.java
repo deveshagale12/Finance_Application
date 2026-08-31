@@ -1,3 +1,4 @@
+package com.finance.exception;
 
 
 
@@ -26,7 +27,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
-import com.example.smartCollege.dto.ApiErrorResponse;
+import com.finance.dto.ApiErrorResponse;
 
 import java.time.Instant;
 import java.util.HashMap;

@@ -1,5 +1,6 @@
 
 
+package com.finance.controller;
 
 
 import jakarta.validation.Valid;
@@ -8,10 +9,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.example.smartCollege.dto.AuthResponse;
-import com.example.smartCollege.dto.LoginRequest;
-import com.example.smartCollege.dto.RegisterRequest;
-import com.example.smartCollege.service.AuthService;
+import com.finance.dto.AuthResponse;
+import com.finance.dto.LoginRequest;
+import com.finance.dto.RegisterRequest;
+import com.finance.service.AuthService;
 
 /**
  * Registration and login endpoints.
